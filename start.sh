@@ -50,10 +50,25 @@ trap cleanup SIGINT
 
 echo "🎮 Minesweeper is running!"
 echo "   Web UI: http://localhost:3000"
-echo "   Temporal UI: http://localhost:8233"
 echo ""
 echo "Press Ctrl+C to stop"
 echo ""
+
+# Wait for server to be ready and open browser
+sleep 2
+echo "Opening browser..."
+if command -v open &> /dev/null; then
+    # macOS
+    open http://127.0.0.1:3000/
+elif command -v xdg-open &> /dev/null; then
+    # Linux
+    xdg-open http://127.0.0.1:3000/
+elif command -v start &> /dev/null; then
+    # Windows (Git Bash)
+    start http://127.0.0.1:3000/
+else
+    echo "⚠️  Could not detect browser command. Please open http://127.0.0.1:3000/ manually."
+fi
 
 # Wait for processes
 wait

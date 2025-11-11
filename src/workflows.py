@@ -14,6 +14,7 @@ class MinesweeperWorkflow:
     """Workflow that manages a single Minesweeper game."""
 
     def __init__(self):
+        self.game_id: str = ""
         self.game_state: GameState | None = None
         self.last_activity_time: float = 0
         self.should_close: bool = False
@@ -21,6 +22,9 @@ class MinesweeperWorkflow:
     @workflow.run
     async def run(self, game_id: str, initial_config: GameConfig) -> None:
         """Main workflow entry point."""
+        # Store game_id immediately so queries can access it during initialization
+        self.game_id = game_id
+
         # Set initial activity time
         self.last_activity_time = workflow.time()
 
@@ -211,7 +215,7 @@ class MinesweeperWorkflow:
         if not self.game_state:
             # Return a minimal valid state while initializing
             return GameState(
-                id="",
+                id=self.game_id,
                 board=None,  # type: ignore
                 status=GameStatus.NOT_STARTED,
                 flags_used=0,

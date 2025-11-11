@@ -34,35 +34,49 @@ def serialize_game_state(game_state):
     if not game_state:
         return None
 
+    # Handle both dict and object access
+    def get_attr(obj, key):
+        """Get attribute from either dict or object."""
+        if isinstance(obj, dict):
+            return obj.get(key)
+        return getattr(obj, key, None)
+
     # Convert cells to dictionaries
     cells = []
-    if game_state.board and game_state.board.cells:
-        for row in game_state.board.cells:
-            row_cells = []
-            for cell in row:
-                row_cells.append({
-                    'isMine': cell.is_mine,
-                    'isRevealed': cell.is_revealed,
-                    'isFlagged': cell.is_flagged,
-                    'neighborMines': cell.neighbor_mines,
-                    'row': cell.row,
-                    'col': cell.col
-                })
-            cells.append(row_cells)
+    board = get_attr(game_state, 'board')
+    if board:
+        board_cells = get_attr(board, 'cells')
+        if board_cells:
+            for row in board_cells:
+                row_cells = []
+                for cell in row:
+                    row_cells.append({
+                        'isMine': get_attr(cell, 'is_mine'),
+                        'isRevealed': get_attr(cell, 'is_revealed'),
+                        'isFlagged': get_attr(cell, 'is_flagged'),
+                        'neighborMines': get_attr(cell, 'neighbor_mines'),
+                        'row': get_attr(cell, 'row'),
+                        'col': get_attr(cell, 'col')
+                    })
+                cells.append(row_cells)
+
+    status = get_attr(game_state, 'status')
+    start_time = get_attr(game_state, 'start_time')
+    end_time = get_attr(game_state, 'end_time')
 
     return {
-        'id': game_state.id,
+        'id': get_attr(game_state, 'id'),
         'board': {
             'cells': cells,
-            'width': game_state.board.width if game_state.board else 0,
-            'height': game_state.board.height if game_state.board else 0,
-            'mineCount': game_state.board.mine_count if game_state.board else 0
+            'width': get_attr(board, 'width') if board else 0,
+            'height': get_attr(board, 'height') if board else 0,
+            'mineCount': get_attr(board, 'mine_count') if board else 0
         },
-        'status': game_state.status.value if hasattr(game_state.status, 'value') else game_state.status,
-        'startTime': game_state.start_time.isoformat() if game_state.start_time else None,
-        'endTime': game_state.end_time.isoformat() if game_state.end_time else None,
-        'flagsUsed': game_state.flags_used,
-        'cellsRevealed': game_state.cells_revealed
+        'status': status.value if hasattr(status, 'value') else status,
+        'startTime': start_time.isoformat() if isinstance(start_time, datetime) else start_time,
+        'endTime': end_time.isoformat() if isinstance(end_time, datetime) else end_time,
+        'flagsUsed': get_attr(game_state, 'flags_used'),
+        'cellsRevealed': get_attr(game_state, 'cells_revealed')
     }
 
 
