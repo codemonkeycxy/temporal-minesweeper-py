@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporal Minesweeper</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚩 Temporal Minesweeper</h1>
+            <p>Powered by Temporal Workflows</p>
+        </header>
+
+        <div class="game-controls">
+            <div class="difficulty-selector">
+                <label for="difficulty">Difficulty:</label>
+                <select id="difficulty">
+                    <option value="beginner">Beginner (9x9, 10 mines)</option>
+                    <option value="intermediate">Intermediate (16x16, 40 mines)</option>
+                    <option value="expert">Expert (30x16, 99 mines)</option>
+                    <option value="custom">Custom</option>
+                </select>
+            </div>
+
+            <div id="custom-config" class="custom-config" style="display: none;">
+                <div class="config-group">
+                    <label for="width">Width:</label>
+                    <input type="number" id="width" min="5" max="30" value="9">
+                </div>
+                <div class="config-group">
+                    <label for="height">Height:</label>
+                    <input type="number" id="height" min="5" max="30" value="9">
+                </div>
+                <div class="config-group">
+                    <label for="mines">Mines:</label>
+                    <input type="number" id="mines" min="1" max="100" value="10">
+                </div>
+            </div>
+
+            <button id="new-game-btn" class="btn btn-primary">New Game</button>
+            <button id="restart-btn" class="btn btn-secondary" disabled>Restart</button>
+        </div>
+
+
+
+        <div class="game-info">
+            <div class="info-item">
+                <span class="label">Status:</span>
+                <span id="game-status" class="status">Not Started</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Mines Left:</span>
+                <span id="mines-left">0</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Time:</span>
+                <span id="game-time">00:00</span>
+            </div>
+        </div>
+
+        <div id="game-board" class="game-board">
+            <div class="no-game">
+                <p>Click "New Game" to start playing!</p>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>How to Play</h3>
+            <div class="controls-section">
+                <h4>Desktop Controls:</h4>
+                <ul>
+                    <li><strong>Left click</strong> - Reveal a cell</li>
+                    <li><strong>Right click</strong> - Flag/unflag a cell as a mine</li>
+                    <li><strong>Double click</strong> - Mass open adjacent cells (when flags match the number)</li>
+                </ul>
+            </div>
+            <div class="controls-section">
+                <h4>Mobile Controls:</h4>
+                <ul>
+                    <li><strong>Tap</strong> - Reveal a cell</li>
+                    <li><strong>Long press</strong> - Flag/unflag a cell as a mine</li>
+                    <li><strong>Double tap</strong> - Mass open adjacent cells (when flags match the number)</li>
+                </ul>
+            </div>
+            <div class="game-rules">
+                <h4>Rules:</h4>
+                <ul>
+                    <li><strong>Goal:</strong> Reveal all cells that don't contain mines</li>
+                    <li><strong>Numbers</strong> show how many mines are adjacent to that cell</li>
+                    <li><strong>Flags</strong> help you mark cells you think contain mines</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
