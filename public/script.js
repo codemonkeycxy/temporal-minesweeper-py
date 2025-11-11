@@ -194,15 +194,18 @@ class MinesweeperGame {
 
     async makeMove(row, col, action) {
         if (!this.gameId || !this.gameState) return;
-        
-        if (this.gameState.status === 'WON' || this.gameState.status === 'LOST') {
+
+        // Normalize status to string
+        let status = this.gameState.status;
+        if (typeof status !== 'string') {
+            status = status?.value || status?.toString() || 'NOT_STARTED';
+        }
+
+        if (status === 'WON' || status === 'LOST') {
             return; // Game is over
         }
 
         try {
-            // Store the current state to detect changes
-            const previousState = JSON.stringify(this.gameState);
-            
             const response = await fetch(`/api/games/${this.gameId}/moves`, {
                 method: 'POST',
                 headers: {
@@ -216,9 +219,10 @@ class MinesweeperGame {
                 throw new Error(error.error || 'Failed to make move');
             }
 
-            // Poll for the updated game state
-            await this.waitForMoveCompletion(previousState);
-            
+            // Use the response directly - it contains the updated game state
+            const data = await response.json();
+            this.updateGameState(data.gameState);
+
         } catch (error) {
             console.error('Error making move:', error);
             alert('Failed to make move: ' + error.message);
@@ -267,6 +271,7 @@ class MinesweeperGame {
     }
 
     updateGameState(gameState) {
+        console.log('Updating game state:', gameState);
         this.gameState = gameState;
         this.updateUI();
         this.renderBoard();
@@ -274,10 +279,16 @@ class MinesweeperGame {
     }
 
     updateUI() {
-        // Update status
-        const statusText = this.gameState.status.replace('_', ' ').toLowerCase();
+        // Update status - handle both string and object formats
+        let status = this.gameState.status;
+        if (typeof status !== 'string') {
+            // If status is an object or has a value property, extract the string
+            status = status?.value || status?.toString() || 'NOT_STARTED';
+        }
+
+        const statusText = status.replace(/_/g, ' ').toLowerCase();
         this.gameStatus.textContent = statusText.charAt(0).toUpperCase() + statusText.slice(1);
-        this.gameStatus.className = `status ${this.gameState.status.toLowerCase().replace('_', '-')}`;
+        this.gameStatus.className = `status ${status.toLowerCase().replace(/_/g, '-')}`;
 
         // Update mines left
         const minesLeft = this.gameState.board.mineCount - this.gameState.flagsUsed;
@@ -289,7 +300,13 @@ class MinesweeperGame {
             clearInterval(this.timerInterval);
         }
 
-        if (this.gameState.status === 'IN_PROGRESS' && this.gameState.startTime) {
+        // Normalize status to string
+        let status = this.gameState.status;
+        if (typeof status !== 'string') {
+            status = status?.value || status?.toString() || 'NOT_STARTED';
+        }
+
+        if (status === 'IN_PROGRESS' && this.gameState.startTime) {
             this.gameStartTime = new Date(this.gameState.startTime);
             this.timerInterval = setInterval(() => {
                 const now = new Date();
@@ -298,7 +315,7 @@ class MinesweeperGame {
                 const seconds = elapsed % 60;
                 this.gameTime.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             }, 1000);
-        } else if (this.gameState.status === 'WON' || this.gameState.status === 'LOST') {
+        } else if (status === 'WON' || status === 'LOST') {
             if (this.gameState.startTime && this.gameState.endTime) {
                 const elapsed = Math.floor((new Date(this.gameState.endTime) - new Date(this.gameState.startTime)) / 1000);
                 const minutes = Math.floor(elapsed / 60);

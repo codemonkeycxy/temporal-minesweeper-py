@@ -64,6 +64,24 @@ def serialize_game_state(game_state):
     start_time = get_attr(game_state, 'start_time')
     end_time = get_attr(game_state, 'end_time')
 
+    # Ensure status is always a string - be very explicit
+    logger.debug(f"Raw status before conversion: {repr(status)} (type: {type(status)})")
+
+    if isinstance(status, (list, tuple)):
+        # If it's a list/tuple, join it
+        status_str = ''.join(str(c) for c in status).upper()
+        logger.warning(f"Status was a list/tuple: {status}, converted to: {status_str}")
+    elif hasattr(status, 'value'):
+        status_str = str(status.value).upper()
+    elif hasattr(status, 'name'):
+        status_str = str(status.name).upper()
+    elif isinstance(status, str):
+        status_str = status.upper()
+    else:
+        status_str = str(status).upper() if status else 'NOT_STARTED'
+
+    logger.info(f"Final status: {status_str}")
+
     return {
         'id': get_attr(game_state, 'id'),
         'board': {
@@ -72,7 +90,7 @@ def serialize_game_state(game_state):
             'height': get_attr(board, 'height') if board else 0,
             'mineCount': get_attr(board, 'mine_count') if board else 0
         },
-        'status': status.value if hasattr(status, 'value') else status,
+        'status': status_str,
         'startTime': start_time.isoformat() if isinstance(start_time, datetime) else start_time,
         'endTime': end_time.isoformat() if isinstance(end_time, datetime) else end_time,
         'flagsUsed': get_attr(game_state, 'flags_used'),
@@ -182,7 +200,8 @@ def make_move(game_id):
             return game_state
 
         game_state = asyncio.run(execute_move())
-        return jsonify({'gameState': serialize_game_state(game_state)})
+        serialized = serialize_game_state(game_state)
+        return jsonify({'gameState': serialized})
 
     except Exception as error:
         logger.error(f"Error making move: {error}")
