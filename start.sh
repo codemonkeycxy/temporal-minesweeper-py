@@ -5,23 +5,19 @@
 echo "🚩 Starting Temporal Minesweeper..."
 echo ""
 
-# Check if Temporal server is running
-echo "Checking Temporal server..."
-if ! nc -z localhost 7233 2>/dev/null; then
-    echo "⚠️  Temporal server is not running on localhost:7233"
-    echo "Please start Temporal server first:"
-    echo "  temporal server start-dev"
-    exit 1
+# Create virtual environment if it doesn't exist
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment..."
+    python -m venv venv
 fi
 
-echo "✓ Temporal server is running"
-echo ""
+# Activate virtual environment
+echo "Activating virtual environment..."
+source venv/bin/activate
 
-# Activate virtual environment if it exists
-if [ -d "venv" ]; then
-    echo "Activating virtual environment..."
-    source venv/bin/activate
-fi
+# Install dependencies
+echo "Installing dependencies..."
+pip install -r requirements.txt
 
 # Start the worker in the background
 echo "Starting Temporal worker..."

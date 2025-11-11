@@ -42,22 +42,52 @@ temporal server start-dev
 
 The Temporal Web UI will be available at http://localhost:8233
 
-### 2. Install Dependencies
+### 1a. Configuration (Optional)
+
+The application can connect to Temporal in two ways:
+
+**Option 1: Environment Variables (default)**
+```bash
+# Optional - defaults to localhost:7233 and "default" namespace
+export TEMPORAL_ADDRESS="localhost:7233"
+export TEMPORAL_NAMESPACE="default"
+```
+
+**Option 2: Configuration Profile (for Temporal Cloud)**
+```bash
+# Set the profile name (reads from temporal.toml config file)
+export TEMPORAL_PROFILE="my-cloud-profile"
+```
+
+The config file location is platform-specific:
+- **macOS**: `~/Library/Application Support/temporalio/temporal.toml`
+- **Linux**: `~/.config/temporalio/temporal.toml` (or `$XDG_CONFIG_HOME/temporalio/temporal.toml`)
+- **Windows**: `%AppData%\temporalio\temporal.toml`
+
+This allows seamless integration with Temporal Cloud or custom Temporal deployments.
+
+### 2. Start the Application
+
+The `start.sh` script will automatically:
+- Create a virtual environment (if it doesn't exist)
+- Install dependencies
+- Start both the Temporal worker and web server
+
+```bash
+chmod +x start.sh
+./start.sh
+```
+
+Alternatively, you can run components manually:
 
 ```bash
 # Create virtual environment (recommended)
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install Python dependencies
+# Install dependencies
 pip install -r requirements.txt
-```
 
-### 3. Start the Application
-
-You need to run both the Temporal worker and the web server:
-
-```bash
 # Terminal 1: Start the Temporal worker
 python -m src.worker
 
@@ -65,14 +95,7 @@ python -m src.worker
 python -m src.server
 ```
 
-Or use the convenience script:
-
-```bash
-chmod +x start.sh
-./start.sh
-```
-
-### 4. Play the Game!
+### 3. Play the Game!
 
 Open your browser and navigate to:
 ```
@@ -174,6 +197,7 @@ Current game state is retrieved using queries:
 ├── src/
 │   ├── __init__.py       # Package initialization
 │   ├── types.py          # Type definitions
+│   ├── client_provider.py # Temporal client configuration
 │   ├── activities.py     # Temporal activities (game logic)
 │   ├── workflows.py      # Temporal workflows
 │   ├── worker.py         # Temporal worker

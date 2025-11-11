@@ -1,11 +1,10 @@
 """Temporal worker for Minesweeper game."""
 import asyncio
 import logging
-import os
-from temporalio.client import Client
 from temporalio.worker import Worker
 from src.workflows import MinesweeperWorkflow
 from src import activities
+from src.client_provider import get_temporal_client
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -13,10 +12,8 @@ logger = logging.getLogger(__name__)
 
 async def main():
     """Start the Temporal worker."""
-    temporal_address = os.getenv("TEMPORAL_ADDRESS", "localhost:7233")
-
     # Connect to Temporal server
-    client = await Client.connect(temporal_address)
+    client = await get_temporal_client()
 
     # Create worker
     worker = Worker(
@@ -31,7 +28,7 @@ async def main():
         ],
     )
 
-    logger.info(f"Worker started, connected to Temporal at: {temporal_address}")
+    logger.info("Worker started, connected to Temporal")
     logger.info("Listening on task queue: minesweeper-task-queue")
 
     # Run the worker

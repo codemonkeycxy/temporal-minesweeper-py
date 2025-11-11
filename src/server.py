@@ -10,6 +10,7 @@ import uuid
 
 from src.workflows import MinesweeperWorkflow
 from src.types import GameConfig, MoveRequest
+from src.client_provider import get_temporal_client
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -232,9 +233,8 @@ def serve_static(path):
 async def initialize_client():
     """Initialize Temporal client."""
     global temporal_client
-    temporal_address = os.getenv("TEMPORAL_ADDRESS", "localhost:7233")
-    temporal_client = await Client.connect(temporal_address)
-    logger.info(f"Connected to Temporal server at: {temporal_address}")
+    temporal_client = await get_temporal_client()
+    logger.info("Connected to Temporal server")
 
 
 def main():
