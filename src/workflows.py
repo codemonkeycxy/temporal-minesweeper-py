@@ -1,6 +1,6 @@
 """Temporal workflows for Minesweeper game."""
 import asyncio
-from datetime import timedelta
+from datetime import datetime, timedelta
 from temporalio import workflow
 from temporalio.common import RetryPolicy
 
@@ -70,7 +70,7 @@ class MinesweeperWorkflow:
         # Mark the game as closed
         if self.game_state:
             self.game_state.status = GameStatus.CLOSED
-            self.game_state.end_time = workflow.now()
+            self.game_state.end_time = datetime.utcfromtimestamp(workflow.time())
 
         workflow.logger.info(f"Minesweeper workflow {game_id} completed")
 
@@ -86,7 +86,7 @@ class MinesweeperWorkflow:
         # Start the game on first move
         if self.game_state.status == GameStatus.NOT_STARTED:
             self.game_state.status = GameStatus.IN_PROGRESS
-            self.game_state.start_time = workflow.now()
+            self.game_state.start_time = datetime.utcfromtimestamp(workflow.time())
 
         row, col, action = move_request.row, move_request.col, move_request.action
 
@@ -127,7 +127,7 @@ class MinesweeperWorkflow:
         # Start the game on first move
         if self.game_state.status == GameStatus.NOT_STARTED:
             self.game_state.status = GameStatus.IN_PROGRESS
-            self.game_state.start_time = workflow.now()
+            self.game_state.start_time = datetime.utcfromtimestamp(workflow.time())
 
         row, col, action = move_request.row, move_request.col, move_request.action
 

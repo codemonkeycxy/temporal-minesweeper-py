@@ -1,6 +1,7 @@
 """Temporal activities for game logic."""
 import random
 import copy
+from datetime import datetime
 from temporalio import activity
 from typing import List
 from src.types import Cell, GameBoard, GameConfig, GameState, GameStatus
@@ -97,7 +98,7 @@ async def reveal_cell(game_state: GameState, row: int, col: int) -> GameState:
     if cell.is_mine:
         # Game over
         new_game_state.status = GameStatus.LOST
-        new_game_state.end_time = activity.now()
+        new_game_state.end_time = datetime.utcnow()
         # Reveal all mines
         for r in range(new_game_state.board.height):
             for c in range(new_game_state.board.width):
@@ -121,7 +122,7 @@ async def reveal_cell(game_state: GameState, row: int, col: int) -> GameState:
         total_cells = new_game_state.board.width * new_game_state.board.height
         if revealed_count == total_cells - new_game_state.board.mine_count:
             new_game_state.status = GameStatus.WON
-            new_game_state.end_time = activity.now()
+            new_game_state.end_time = datetime.utcnow()
 
     return new_game_state
 
@@ -204,7 +205,7 @@ async def chord_reveal(game_state: GameState, row: int, col: int) -> GameState:
     if hit_mine:
         # Game over - reveal all mines
         new_game_state.status = GameStatus.LOST
-        new_game_state.end_time = activity.now()
+        new_game_state.end_time = datetime.utcnow()
         for r in range(new_game_state.board.height):
             for c in range(new_game_state.board.width):
                 if new_game_state.board.cells[r][c].is_mine:
@@ -222,6 +223,6 @@ async def chord_reveal(game_state: GameState, row: int, col: int) -> GameState:
         total_cells = new_game_state.board.width * new_game_state.board.height
         if revealed_count == total_cells - new_game_state.board.mine_count:
             new_game_state.status = GameStatus.WON
-            new_game_state.end_time = activity.now()
+            new_game_state.end_time = datetime.utcnow()
 
     return new_game_state
